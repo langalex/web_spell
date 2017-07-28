@@ -1,24 +1,34 @@
-# add to your http client stub module by calling `use WebSpell`
 defmodule WebSpell do
+  @moduledoc """
+    For a tutorial on how to use WebSpell, see the [README on Github](https://github.com/langalex/web_spell/blob/master/README.md).
+  """
+
+  @doc """
+    Add WebSpell to your http client stub module by calling `use WebSpell`.
+    This adds the following methods to your module:
+
+    * `start_link` - call this method in your test before setting up any stubs
+    * `stub_request` - call this in your test to set up a stubbed http request/response
+    * `call_stubbed_request` - forward any http calls in your http client module to this method
+    * `received_request` - use this function in test assertions, i.e. assert MyClient.received_request(…)
+    * `received_no_request` - use this function in test assertions, i.e. assert MyClient.received_no_request(…)
+  """
   defmacro __using__(opts) do
     server_name = opts[:server_name] || :web_spell
 
     quote do
       use GenServer
 
-      # call this method in your test before setting up any stubs
       def start_link do
         {:ok, pid} = GenServer.start_link(__MODULE__, :ok, [])
         Process.register(pid, unquote(server_name))
       end
       
-      # call this in your test to set up a stubbed http request/response
       def stub_request(%WebSpell.Request{} = request, %WebSpell.Response{} = response) do
         server = Process.whereis(unquote(server_name))
         GenServer.cast(server, {:stub_request, request, response})
       end
 
-      # forward any http calls in your http client module to this method
       def call_stubbed_request!(%WebSpell.Request{} = request) do
         server = Process.whereis(unquote(server_name))
         case GenServer.call(server, {:call_stubbed_request, request}) do
@@ -27,7 +37,6 @@ defmodule WebSpell do
         end
       end
 
-      # use this function in test assertions, i.e. assert MyClient.received_request(…)
       def received_request(%WebSpell.Request{} = request) do
         recorded_request = find_recorded_request(request)
         if recorded_request do
@@ -39,7 +48,6 @@ defmodule WebSpell do
         end
       end
 
-      # use this function in test assertions, i.e. assert MyClient.received_no_request(…)
       def received_no_request(%WebSpell.Request{} = request) do
         recorded_request = find_recorded_request(request)
         if recorded_request do
