@@ -1,0 +1,7 @@
+language: elixir
+elixir: 1.4.5
+script: mix test
+cache:
+  directories:
+    - _build
+    - deps
