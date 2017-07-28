@@ -80,7 +80,7 @@ And implement a mock HTTP client using WebSpell:
       use WebSpell
 
       def get(url, query, headers) do
-        response = call_stubbed_request! %Request{method: :get, url: url, query: query, headers: headers}
+        response = call_stubbed_request! %WebSpell.Request{method: :get, url: url, query: query, headers: headers}
         {:ok, response.body} # emulate the behavior of your production HTTP client
       end
     end
@@ -112,10 +112,12 @@ Finally you can start writing tests using WebSpell:
         user = MyWebClient.get_user
 
         assert user == {"email" => "user@example.com"}
-        assert MockHTTPClient.received_request(%{method: :get, url: "http://example.com/user",
-                                                 query: {access_token: "123"}, 
-                                                 headers: {Accept: "application/json"}})
-        assert MockHTTPClient.received_no_request(%{method: :get, url: "http://example.com/account"})
+        assert MockHTTPClient.received_request(
+          %WebSpell.Request{method: :get, url: "http://example.com/user",
+                            query: {access_token: "123"}, 
+                            headers: {Accept: "application/json"}})
+        assert MockHTTPClient.received_no_request
+          (%WebSpell.Requestr{method: :get, url: "http://example.com/account"})
       end
     end
 
