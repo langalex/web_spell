@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/langalex/web_spell.svg?branch=master)](https://travis-ci.org/langalex/web_spell)
 
+[![Ebert](https://ebertapp.io/github/langalex/web_spell.svg)](https://ebertapp.io/github/langalex/web_spell)
+
 WebSpell is an HTTP mocking library for Elixir. It is somewhat inspired by WebMock for Ruby, but adapted to the different programming environment of Elixir.
 
 ## Motivation
