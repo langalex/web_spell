@@ -121,10 +121,6 @@ Finally you can start writing tests using WebSpell:
       end
     end
 
-## TODO
-
-* implement query params, headers
-
 ## Ideas
 
 Add support for a few popular HTTP clients and return responses matching them instead of just WebSpell.Response.
