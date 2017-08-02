@@ -113,13 +113,22 @@ Finally you can start writing tests using WebSpell:
 
         assert user == {"email" => "user@example.com"}
         assert MockHTTPClient.received_request(
-          %WebSpell.Request{method: :get, url: "http://example.com/user",
+          %WebSpell.Request{method: :get, 
+                            url: "http://example.com/user",
                             query: {access_token: "123"}, 
                             headers: {Accept: "application/json"}})
         assert MockHTTPClient.received_no_request
           (%WebSpell.Requestr{method: :get, url: "http://example.com/account"})
       end
     end
+
+For POST/PUT etc. you can pass in a body:
+
+    assert MockHTTPClient.received_request(
+      %WebSpell.Request{method: :post, 
+                        url: "http://example.com/user",
+                        body: Poison.encode!(%{email: "joe@example.com"}), 
+                        headers: {Accept: "application/json"}})
 
 ## Ideas
 
