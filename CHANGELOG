@@ -1,3 +1,7 @@
+## 0.2.0
+
+* adds body to post/put etc. requests
+
 ## 0.1.1
 
 * adds basic ex_doc documentation
