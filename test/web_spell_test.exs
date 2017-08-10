@@ -22,7 +22,7 @@ defmodule WebSpellTest do
 
   test "call_stubbed_request! errors when body does not match" do
     TestClient.stub_request(
-      %WebSpell.Request{method: :post, url: "/wrong", body: "x"},
+      %WebSpell.Request{method: :post, url: "/", body: "x"},
       %WebSpell.Response{status: 500, body: nil})
 
     assert_raise RuntimeError, fn ->

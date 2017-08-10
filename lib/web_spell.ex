@@ -75,9 +75,7 @@ defmodule WebSpell do
 
       def handle_call({:call_stubbed_request, request}, _from, %{request_stubs: request_stubs, recorded_requests: recorded_requests = state}) do
         stub = request_stubs
-        |> Enum.filter(fn stub ->
-          stub.request.url == request.url && stub.request.method == request.method
-        end)
+        |> Enum.filter(fn stub -> WebSpell.Request.match?(stub.request, request) end)
         |> Enum.at(-1)
         if stub do
           {
@@ -111,9 +109,7 @@ defmodule WebSpell do
 
       defp find_recorded_request(request) do
         Enum.find(recorded_requests(), fn recorded_request ->
-          recorded_request.method == request.method && 
-            recorded_request.url == request.url &&
-            (request.body == nil || request.body == recorded_request.body)
+          WebSpell.Request.match?(recorded_request, request)
         end)
       end
 
