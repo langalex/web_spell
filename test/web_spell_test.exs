@@ -40,6 +40,19 @@ defmodule WebSpellTest do
     assert response == %WebSpell.Response{status: 201, body: "success!"}
   end
 
+  test "call_stubbed_request! returns the last response matching the request" do
+    TestClient.stub_request(
+      %WebSpell.Request{method: :get, url: "/"},
+      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(
+      %WebSpell.Request{method: :get, url: "/"},
+      %WebSpell.Response{status: 201, body: "success2!"})
+
+    response = TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
+
+    assert response == %WebSpell.Response{status: 201, body: "success2!"}
+  end
+
   test "received_request returns matching recorded request" do
     TestClient.stub_request(
       %WebSpell.Request{method: :get, url: "/"},
