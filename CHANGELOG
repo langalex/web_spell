@@ -1,3 +1,7 @@
+# 0.3.1
+
+* fixes matching against request body was missing in call_stubbed_request!
+
 ## 0.3.0
 
 * adds matching against multiple requests and returning the last one
