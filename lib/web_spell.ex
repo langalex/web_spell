@@ -109,7 +109,7 @@ defmodule WebSpell do
 
       defp find_recorded_request(request) do
         Enum.find(recorded_requests(), fn recorded_request ->
-          WebSpell.Request.match?(recorded_request, request)
+          WebSpell.Request.match?(request, recorded_request)
         end)
       end
 

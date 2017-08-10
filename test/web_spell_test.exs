@@ -83,6 +83,16 @@ defmodule WebSpellTest do
     assert TestClient.received_request(%WebSpell.Request{method: :post, url: "/", body: "<body>"})
   end
 
+  test "received_request returns matching record if no body given" do
+    TestClient.stub_request(
+      %WebSpell.Request{method: :post, url: "/"},
+      %WebSpell.Response{status: 201, body: "success!"})
+
+    TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "<body>"})
+
+    assert TestClient.received_request(%WebSpell.Request{method: :post, url: "/"})
+  end
+
   test "received_request returns nil if body does not match" do
     TestClient.stub_request(
       %WebSpell.Request{method: :post, url: "/"},
