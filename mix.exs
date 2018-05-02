@@ -2,16 +2,18 @@ defmodule WebSpell.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :web_spell,
-     version: "0.3.2",
-     elixir: "~> 1.4",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     description: description(),
-     package: package(),
-     name: "WebSpell",
-     source_url: "https://github.com/langalex/web_spell"]
+    [
+      app: :web_spell,
+      version: "0.4.0",
+      elixir: "~> 1.4",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      description: description(),
+      package: package(),
+      name: "WebSpell",
+      source_url: "https://github.com/langalex/web_spell"
+    ]
   end
 
   # Configuration for the OTP application
