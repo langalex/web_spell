@@ -6,14 +6,15 @@ defmodule WebSpellTest do
   use ExUnit.Case
 
   setup do
-    TestClient.start_link
+    TestClient.start_link()
     :ok
   end
 
   test "call_stubbed_request! errors when no matching stub found" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/wrong"},
-      %WebSpell.Response{status: 500, body: nil})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/wrong"}, %WebSpell.Response{
+      status: 500,
+      body: nil
+    })
 
     assert_raise RuntimeError, fn ->
       TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
@@ -23,17 +24,23 @@ defmodule WebSpellTest do
   test "call_stubbed_request! errors when body does not match" do
     TestClient.stub_request(
       %WebSpell.Request{method: :post, url: "/", body: "x"},
-      %WebSpell.Response{status: 500, body: nil})
+      %WebSpell.Response{status: 500, body: nil}
+    )
 
     assert_raise RuntimeError, fn ->
-      TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "somethingelse"})
+      TestClient.call_stubbed_request!(%WebSpell.Request{
+        method: :post,
+        url: "/",
+        body: "somethingelse"
+      })
     end
   end
 
   test "call_stubbed_request! returns the response to the matching request" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     response = TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
 
@@ -41,12 +48,15 @@ defmodule WebSpellTest do
   end
 
   test "call_stubbed_request! returns the last response matching the request" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success2!"})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
+
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success2!"
+    })
 
     response = TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
 
@@ -54,19 +64,49 @@ defmodule WebSpellTest do
   end
 
   test "received_request returns matching recorded request" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
 
     assert TestClient.received_request(%WebSpell.Request{method: :get, url: "/"})
   end
 
+  test "received_request returns matching request if it arrives within timeout" do
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
+
+    Task.async(fn ->
+      :timer.sleep(10)
+      TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
+    end)
+
+    assert TestClient.received_request(%WebSpell.Request{method: :get, url: "/"}, 20)
+  end
+
+  test "received_request returns nil if it does not arrive within timeout" do
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
+
+    Task.async(fn ->
+      :timer.sleep(10)
+      TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
+    end)
+
+    assert TestClient.received_request(%WebSpell.Request{method: :get, url: "/"}, 1)
+  end
+
   test "received_request returns nil if no matching request recorded" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
 
@@ -74,9 +114,10 @@ defmodule WebSpellTest do
   end
 
   test "received_request returns matching record if body matches" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :post, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :post, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "<body>"})
 
@@ -84,9 +125,10 @@ defmodule WebSpellTest do
   end
 
   test "received_request returns matching record if no body given" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :post, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :post, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "<body>"})
 
@@ -94,19 +136,25 @@ defmodule WebSpellTest do
   end
 
   test "received_request returns nil if body does not match" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :post, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :post, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "<body>"})
 
-    refute TestClient.received_request(%WebSpell.Request{method: :post, url: "/", body: "<somethingelse>"})
+    refute TestClient.received_request(%WebSpell.Request{
+             method: :post,
+             url: "/",
+             body: "<somethingelse>"
+           })
   end
 
   test "received_no_request returns true if no matching request recorded" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
 
@@ -114,9 +162,10 @@ defmodule WebSpellTest do
   end
 
   test "received_no_request returns nil if matching request recorded" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :get, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :get, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :get, url: "/"})
 
@@ -124,9 +173,10 @@ defmodule WebSpellTest do
   end
 
   test "received_no_request returns nil if body matches" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :post, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :post, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "abc"})
 
@@ -134,12 +184,17 @@ defmodule WebSpellTest do
   end
 
   test "received_no_request returns true if body does not match" do
-    TestClient.stub_request(
-      %WebSpell.Request{method: :post, url: "/"},
-      %WebSpell.Response{status: 201, body: "success!"})
+    TestClient.stub_request(%WebSpell.Request{method: :post, url: "/"}, %WebSpell.Response{
+      status: 201,
+      body: "success!"
+    })
 
     TestClient.call_stubbed_request!(%WebSpell.Request{method: :post, url: "/", body: "abc"})
 
-    assert TestClient.received_no_request(%WebSpell.Request{method: :post, url: "/", body: "somethingelse"})
+    assert TestClient.received_no_request(%WebSpell.Request{
+             method: :post,
+             url: "/",
+             body: "somethingelse"
+           })
   end
 end
